@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e21">
+<meta name="description" content="Northern Lights Run — an endless runner for Northern Lights Herbal Wellness, Lenasia. Dodge, jump, roll and collect the herb!">
+<title>Northern Lights Run — Herbal Wellness Lenasia</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="game"></canvas>
+
+  <!-- ============ HUD ============ -->
+  <div id="hud" class="hidden">
+    <div id="hudLeft">
+      <div id="hudScore">0</div>
+      <div id="hudDist">0 m</div>
+    </div>
+    <div id="hudCenter">
+      <div id="hudMult" class="hidden">×2</div>
+    </div>
+    <div id="hudRight">
+      <div id="hudBuds"><span class="budIcon"></span><span id="hudBudCount">0</span></div>
+      <button id="btnPause" aria-label="Pause"></button>
+    </div>
+    <div id="powerPills"></div>
+    <div id="hint">
+      <span class="key">◀ ▶</span> move&nbsp;&nbsp;<span class="key">▲</span> jump&nbsp;&nbsp;<span class="key">▼</span> roll&nbsp;&nbsp;·&nbsp;&nbsp;or swipe
+    </div>
+  </div>
+
+  <div id="flash"></div>
+  <div id="countdown" class="hidden"></div>
+
+  <!-- ============ START MENU ============ -->
+  <div id="menu" class="screen">
+    <div class="panel menuPanel">
+      <div class="logoRow">
+        <img id="logoImg" src="assets/logo.png" alt="Northern Lights Herbal Wellness logo">
+        <div>
+          <h1 class="title">NORTHERN<br>LIGHTS <span class="titleAccent">RUN</span></h1>
+          <p class="tagline">🌿 HERBAL WELLNESS · LENASIA 🌿</p>
+        </div>
+      </div>
+      <button id="btnPlay" class="btn btnPrimary big">▶&nbsp; PLAY</button>
+      <div class="howto">
+        <div class="chip"><span class="chipIcon">⬅️➡️</span> Swipe / Arrow keys to switch lane</div>
+        <div class="chip"><span class="chipIcon">⬆️</span> Swipe up / Space to jump</div>
+        <div class="chip"><span class="chipIcon">⬇️</span> Swipe down to roll under signs</div>
+        <div class="chip"><span class="chipIcon">🌿</span> Collect buds · Grab power-ups · Don't crash!</div>
+      </div>
+      <div class="scoresBox">
+        <h2>🏆 LOCAL HIGH SCORES</h2>
+        <ol id="menuScores"><li class="empty">No runs yet — be the first legend.</li></ol>
+      </div>
+      <div class="footerRow">
+        <button id="btnSoundMenu" class="btn btnGhost small" aria-label="Toggle sound">🔊 SOUND ON</button>
+        <span class="store">142 PROTEA AVE, LENASIA</span>
+      </div>
+      <p class="ageGate">18+ · Play responsibly 🌱</p>
+    </div>
+  </div>
+
+  <!-- ============ PAUSE ============ -->
+  <div id="pause" class="screen hidden">
+    <div class="panel">
+      <h1 class="title small">PAUSED</h1>
+      <p class="tagline">Take a breather 🍃</p>
+      <button id="btnResume" class="btn btnPrimary big">▶&nbsp; RESUME</button>
+      <button id="btnRestartPause" class="btn">⟲&nbsp; RESTART</button>
+      <button id="btnMenuPause" class="btn btnGhost">EXIT TO MENU</button>
+      <button id="btnSoundPause" class="btn btnGhost small">🔊 SOUND ON</button>
+    </div>
+  </div>
+
+  <!-- ============ GAME OVER ============ -->
+  <div id="gameover" class="screen hidden">
+    <div class="panel">
+      <h1 class="title small crash">WIPEOUT!</h1>
+      <div id="newRecord" class="hidden">🌟 NEW HIGH SCORE! 🌟</div>
+      <div id="finalScore">0</div>
+      <div class="statRow"><span>Distance</span><b id="statDist">0 m</b></div>
+      <div class="statRow"><span>Buds collected</span><b id="statBuds">0</b></div>
+      <div class="statRow"><span>Best streak</span><b id="statStreak">×1</b></div>
+      <div id="nameRow" class="hidden">
+        <input id="nameInput" maxlength="10" placeholder="Your name" autocomplete="off">
+        <button id="btnSaveScore" class="btn small">SAVE</button>
+      </div>
+      <div class="scoresBox">
+        <h2>🏆 HIGH SCORES</h2>
+        <ol id="overScores"></ol>
+      </div>
+      <button id="btnAgain" class="btn btnPrimary big">⟲&nbsp; RUN AGAIN <span class="kbd">Enter</span></button>
+      <button id="btnMenuOver" class="btn btnGhost">EXIT TO MENU</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/audio.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
