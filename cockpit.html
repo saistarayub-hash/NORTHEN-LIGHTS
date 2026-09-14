@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0e21">
+<title>NLR COCKPIT — staff only</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0e21;--green:#3dff88;--teal:#35e0d0;--purple:#a06bff;--magenta:#ff5fd0;--ink:#eaf7ff;--dim:#9fb0d8;--panel:rgba(13,17,42,.9)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(ellipse at 50% 0%,#1a1550,#070a1e 70%);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;min-height:100vh;padding:20px 14px 60px}
+.wrap{max-width:720px;margin:0 auto}
+h1{font-family:'Righteous',sans-serif;font-weight:400;font-size:30px;letter-spacing:2px;background:linear-gradient(92deg,#7dffa8,#35e0d0 45%,#a06bff);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center}
+.sub{text-align:center;color:var(--dim);font-weight:800;letter-spacing:2px;font-size:11px;margin-top:4px}
+.staff{display:block;width:fit-content;margin:10px auto 20px;font-weight:900;font-size:10.5px;letter-spacing:2px;color:#ffd25f;border:1px solid rgba(255,210,95,.5);background:rgba(255,210,95,.08);padding:5px 12px;border-radius:999px}
+.card{background:var(--panel);border:1px solid rgba(122,255,190,.18);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.card h2{font-family:'Righteous',sans-serif;font-weight:400;font-size:15px;letter-spacing:2px;color:var(--purple);margin-bottom:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+label{font-size:12px;font-weight:800;color:var(--dim);letter-spacing:1px}
+input,select{background:rgba(255,255,255,.07);border:1px solid rgba(61,255,136,.4);border-radius:10px;color:var(--ink);font-family:inherit;font-weight:800;font-size:14px;padding:9px 12px;outline:none;min-width:0}
+input:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(61,255,136,.15)}
+button{font-family:inherit;font-weight:900;font-size:13px;letter-spacing:1px;color:var(--ink);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:11px;padding:10px 14px;cursor:pointer;transition:transform .08s}
+button:active{transform:scale(.95)}
+button.primary{background:linear-gradient(115deg,#2be084,#0d9157);color:#052312;border:none;box-shadow:0 6px 18px rgba(43,224,132,.35)}
+button.danger{color:#ff6b7a;border-color:rgba(255,107,122,.4)}
+button.danger.armed{background:rgba(255,80,90,.15)}
+button.mini{padding:6px 10px;font-size:11px;border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{color:var(--dim);font-size:10px;letter-spacing:1.5px;text-align:left;padding:4px 6px}
+td{padding:4px 6px;border-top:1px solid rgba(255,255,255,.08)}
+td input{padding:6px 8px;font-size:12.5px;width:100%}
+td input.num{width:74px;text-align:right}
+.ownerChip{color:#ffd25f;font-weight:900;font-size:11px}
+#ownerList{display:flex;flex-wrap:wrap;gap:8px}
+.ownerChipBtn{display:flex;align-items:center;gap:8px;background:rgba(255,210,95,.08);border:1px solid rgba(255,210,95,.4);border-radius:999px;padding:7px 12px;font-weight:800;font-size:13px;color:var(--ink)}
+.ownerChipBtn b{color:#ffd25f}
+.ownerChipBtn span{color:var(--dim);font-size:11px}
+.ownerChipBtn button{padding:3px 8px;font-size:10px}
+textarea{width:100%;height:110px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.18);border-radius:12px;color:var(--ink);font-family:ui-monospace,Menlo,monospace;font-size:11px;padding:10px;outline:none}
+.note{font-size:11px;color:var(--dim);font-weight:700;margin-top:8px;line-height:1.5}
+#msg{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(13,17,42,.95);border:1px solid rgba(61,255,136,.5);color:var(--green);font-weight:900;font-size:13px;padding:10px 18px;border-radius:999px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9}
+#msg.show{opacity:1}
+pre{background:rgba(0,0,0,.35);border-radius:10px;padding:10px;font-size:10.5px;overflow-x:auto;color:var(--dim);max-height:180px;overflow-y:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🛩 NLR COCKPIT</h1>
+  <p class="sub">NORTHERN LIGHTS HERBAL WELLNESS · 142 PROTEA AVE, LENASIA</p>
+  <span class="staff">STAFF ONLY · PRIVATE · SHARED SAVE KEYS</span>
+
+  <div class="card">
+    <h2>👥 RUNNER REGISTRY (nl_owners_v1)</h2>
+    <div class="row">
+      <input id="ownerName" placeholder="Name" maxlength="12" style="flex:1;min-width:120px">
+      <input id="ownerIg" placeholder="@instagram" maxlength="24" style="flex:1;min-width:120px">
+      <button class="primary" id="btnAddOwner">+ REGISTER</button>
+    </div>
+    <div id="ownerList"></div>
+    <p class="note">Registered owners show up as 👑 crown chips in the in-game lobby (index.html#cockpit) — tap one to bank a run under their name. Their scores are saved with an owner flag (o:1) in nlhs_v1.</p>
+  </div>
+
+  <div class="card">
+    <h2>🎁 GRANTS</h2>
+    <div class="row">
+      <label>HOVERBOARDS (nl_boards)</label>
+      <button class="mini" data-board="-1">−1</button>
+      <b id="boardVal" style="min-width:20px;text-align:center">2</b>
+      <button class="mini" data-board="1">+1</button>
+      <span class="note" style="margin:0">cap 3</span>
+    </div>
+    <div class="row">
+      <label>KEYS (nl_keys)</label>
+      <button class="mini" data-key="-1">−1</button>
+      <b id="keyVal" style="min-width:20px;text-align:center">0</b>
+      <button class="mini" data-key="1">+1</button>
+    </div>
+    <div class="row">
+      <label>EQUIPPED BOARD (nl_board)</label>
+      <select id="selBoard"></select>
+    </div>
+    <div class="row">
+      <label>RUNNER (nl_char)</label>
+      <select id="selChar"></select>
+    </div>
+    <div class="row">
+      <label>RUNNER NAME (nl_name)</label>
+      <input id="inName" maxlength="10" style="flex:1;min-width:100px">
+    </div>
+    <div class="row">
+      <button class="primary" id="btnUnlock">🔓 UNLOCK ALL RUNNERS (nl_unlocked)</button>
+      <span id="unlockState" class="note" style="margin:0"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🏆 LEADERBOARD EDITOR (nlhs_v1 · top 8)</h2>
+    <table id="hsTable">
+      <thead><tr><th>#</th><th>NAME</th><th>SCORE</th><th>BUDS</th><th>DIST m</th><th>WHEN</th><th>OWNER</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="row" style="margin-top:10px">
+      <input id="hsName" placeholder="Name" maxlength="10" style="flex:1;min-width:90px">
+      <input id="hsScore" class="num" placeholder="Score" maxlength="8" inputmode="numeric" style="width:90px">
+      <button class="primary" id="btnAddScore">+ ADD</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📊 DEVICE STATS (nl_stats_v1)</h2>
+    <div class="row">
+      <label>RUNS</label><input id="stR" class="num" style="width:70px">
+      <label>BEST</label><input id="stBest" class="num" style="width:90px">
+    </div>
+    <div class="row">
+      <label>TOTAL DIST</label><input id="stD" class="num" style="width:90px">
+      <label>TOTAL BUDS</label><input id="stB" class="num" style="width:80px">
+    </div>
+    <div class="row">
+      <label>BOARDS BROKEN</label><input id="stBB" class="num" style="width:90px">
+      <label>KEY SAVES</label><input id="stKS" class="num" style="width:80px">
+      <button class="primary" id="btnSaveStats">SAVE STATS</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔁 EXPORT / IMPORT SAVE JSON</h2>
+    <div class="row">
+      <button class="primary" id="btnExport">⬇ DOWNLOAD SAVE</button>
+      <button id="btnCopy">⧉ COPY TO CLIPBOARD</button>
+      <label style="margin-left:6px">OR PASTE +</label>
+      <button class="primary" id="btnApplyPaste">APPLY PASTED</button>
+    </div>
+    <textarea id="pasteBox" placeholder='{ "nlhs_v1": [...], "nl_owners_v1": [...], ... }'></textarea>
+    <div class="row">
+      <input type="file" id="fileIn" accept="application/json,.json" style="display:none">
+      <button id="btnFile">📂 IMPORT FROM FILE</button>
+      <button id="btnReload" class="mini">RELOAD PAGE</button>
+    </div>
+    <p class="note">Transfer the save between devices: export on device A, import on device B. Same keys as the game — cockpit.html must live on the same origin as index.html (it does: repo root).</p>
+  </div>
+
+  <div class="card">
+    <h2>⚠ DESTRUCTIVE</h2>
+    <div class="row">
+      <button class="danger" id="btnResetHS">RESET LEADERBOARD (2-tap)</button>
+      <button class="danger" id="btnWipeAll">WIPE ALL SAVE (2-tap)</button>
+    </div>
+  </div>
+</div>
+<div id="msg"></div>
+
+<script>
+'use strict';
+/* NLR COCKPIT — standalone admin. Plain JS, same localStorage keys
+   as the game (nlhs_v1, nl_owners_v1, nl_stats_v1, nl_keys, nl_boards,
+   nl_board, nl_name, nl_muted, nl_unlocked, nl_char). */
+const KEYS = {
+  HS: 'nlhs_v1', OWNERS: 'nl_owners_v1', STATS: 'nl_stats_v1',
+  NKEYS: 'nl_keys', BOARDS: 'nl_boards', BOARD: 'nl_board',
+  NAME: 'nl_name', MUTED: 'nl_muted', UNLOCKED: 'nl_unlocked', CHAR: 'nl_char',
+};
+const BOARDS = ['aurora', 'sodaze', 'northern', 'lenz'];
+const BOARD_NAMES = { aurora: 'Aurora Glider', sodaze: 'Sodaze Surfer', northern: 'Northern Light', lenz: 'Lenz Rider' };
+const CHARS = ['doc', 'kaya', 'trev', 'zumi'];
+const $ = (id) => document.getElementById(id);
+const get = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } };
+const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { } };
+const getJ = (k, d) => { const v = get(k, null); if (v == null) return d; try { return JSON.parse(v); } catch (e) { return d; } };
+const setJ = (k, v) => set(k, JSON.stringify(v));
+
+let msgT = null;
+function msg(s) {
+  const el = $('msg');
+  el.textContent = s;
+  el.classList.add('show');
+  clearTimeout(msgT);
+  msgT = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+/* ---------------- owners ---------------- */
+function owners() {
+  const o = getJ(KEYS.OWNERS, []);
+  return Array.isArray(o) ? o.filter(e => e && e.n) : [];
+}
+function renderOwners() {
+  const box = $('ownerList');
+  box.innerHTML = '';
+  const list = owners();
+  if (!list.length) {
+    box.innerHTML = '<span class="note">No owners registered yet.</span>';
+    return;
+  }
+  list.forEach((o, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'ownerChipBtn';
+    chip.innerHTML = `<b>👑 ${String(o.n).replace(/[<>&]/g, '')}</b><span>${String(o.ig || '').replace(/[<>&]/g, '')}</span>`;
+    const del = document.createElement('button');
+    del.textContent = '✕';
+    del.className = 'mini';
+    del.addEventListener('click', () => {
+      const l = owners();
+      l.splice(i, 1);
+      setJ(KEYS.OWNERS, l);
+      renderOwners();
+      msg('Removed ' + o.n);
+    });
+    chip.appendChild(del);
+    box.appendChild(chip);
+  });
+}
+$('btnAddOwner').addEventListener('click', () => {
+  const n = $('ownerName').value.trim().toUpperCase().slice(0, 12);
+  if (!n) { msg('Enter a name'); return; }
+  const l = owners();
+  if (l.some(o => o.n.toUpperCase() === n)) { msg('Already registered'); return; }
+  l.push({ n, ig: $('ownerIg').value.trim().slice(0, 24) });
+  setJ(KEYS.OWNERS, l);
+  $('ownerName').value = '';
+  $('ownerIg').value = '';
+  renderOwners();
+  msg('Registered ' + n + ' ✓');
+});
+
+/* ---------------- grants ---------------- */
+function renderGrants() {
+  $('boardVal').textContent = get(KEYS.BOARDS, '2');
+  $('keyVal').textContent = get(KEYS.NKEYS, '0');
+  $('inName').value = get(KEYS.NAME, '');
+  $('selBoard').value = BOARDS.includes(get(KEYS.BOARD, 'aurora')) ? get(KEYS.BOARD) : 'aurora';
+  $('selChar').value = CHARS.includes(get(KEYS.CHAR, 'doc')) ? get(KEYS.CHAR) : 'doc';
+  $('unlockState').textContent = get(KEYS.UNLOCKED, '') === '1' ? '— crew UNLOCKED' : '— crew locked';
+}
+document.querySelectorAll('[data-board]').forEach(b => b.addEventListener('click', () => {
+  const v = Math.max(0, Math.min(3, parseInt(get(KEYS.BOARDS, '2'), 10) + parseInt(b.dataset.board, 10)));
+  set(KEYS.BOARDS, String(v));
+  renderGrants();
+  msg('Boards = ' + v);
+}));
+document.querySelectorAll('[data-key]').forEach(b => b.addEventListener('click', () => {
+  const v = Math.max(0, Math.min(99, parseInt(get(KEYS.NKEYS, '0'), 10) + parseInt(b.dataset.key, 10)));
+  set(KEYS.NKEYS, String(v));
+  renderGrants();
+  msg('Keys = ' + v);
+}));
+$('selBoard').addEventListener('change', (e) => { set(KEYS.BOARD, e.target.value); msg('Board = ' + BOARD_NAMES[e.target.value]); });
+$('selChar').addEventListener('change', (e) => { set(KEYS.CHAR, e.target.value); msg('Runner = ' + e.target.value.toUpperCase()); });
+$('inName').addEventListener('change', (e) => { set(KEYS.NAME, e.target.value.trim().toUpperCase().slice(0, 10)); msg('Name saved'); });
+$('btnUnlock').addEventListener('click', () => {
+  const on = get(KEYS.UNLOCKED, '') !== '1';
+  set(KEYS.UNLOCKED, on ? '1' : '');
+  renderGrants();
+  msg(on ? 'ALL RUNNERS UNLOCKED 🔓' : 'Crew locked again');
+});
+// build selects
+{
+  const sb = $('selBoard');
+  BOARDS.forEach(b => { const o = document.createElement('option'); o.value = b; o.textContent = BOARD_NAMES[b]; sb.appendChild(o); });
+  const sc = $('selChar');
+  CHARS.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c.toUpperCase() + (c !== 'doc' ? ' (crew)' : ' ★'); sc.appendChild(o); });
+}
+
+/* ---------------- leaderboard editor ---------------- */
+function hs() {
+  const h = getJ(KEYS.HS, []);
+  return Array.isArray(h) ? h.filter(e => e && typeof e.s === 'number') : [];
+}
+function renderHS() {
+  const tb = document.querySelector('#hsTable tbody');
+  tb.innerHTML = '';
+  const list = hs().slice(0, 8);
+  if (!list.length) {
+    tb.innerHTML = '<tr><td colspan="8" class="note" style="color:var(--dim)">Empty leaderboard.</td></tr>';
+    return;
+  }
+  list.forEach((e, i) => {
+    const tr = document.createElement('tr');
+    const mkIn = (val, cls) => {
+      const inp = document.createElement('input');
+      if (cls) inp.className = cls;
+      inp.value = val;
+      return inp;
+    };
+    const cRank = document.createElement('td');
+    cRank.textContent = i + 1;
+    const cName = document.createElement('td');
+    cName.appendChild(mkIn(e.n || '', ''));
+    const cScore = document.createElement('td');
+    cScore.appendChild(mkIn(String(e.s | 0), 'num'));
+    const cBuds = document.createElement('td');
+    cBuds.appendChild(mkIn(String(e.b | 0), 'num'));
+    const cDist = document.createElement('td');
+    cDist.appendChild(mkIn(String(e.d | 0), 'num'));
+    const cWhen = document.createElement('td');
+    cWhen.textContent = e.t ? new Date(e.t).toLocaleDateString() : '—';
+    const cOwner = document.createElement('td');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = !!e.o;
+    cb.style.width = 'auto';
+    cOwner.appendChild(cb);
+    const cDel = document.createElement('td');
+    const del = document.createElement('button');
+    del.className = 'mini danger';
+    del.textContent = '✕';
+    del.addEventListener('click', () => {
+      const l = hs();
+      l.splice(i, 1);
+      setJ(KEYS.HS, l);
+      renderHS();
+      msg('Row deleted');
+    });
+    cDel.appendChild(del);
+    const saveRow = () => {
+      const l = hs();
+      const src = l[i] || {};
+      l[i] = {
+        n: cName.querySelector('input').value.trim().toUpperCase().slice(0, 12) || 'RUNNER',
+        s: parseInt(cScore.querySelector('input').value, 10) || 0,
+        b: parseInt(cBuds.querySelector('input').value, 10) || 0,
+        d: parseInt(cDist.querySelector('input').value, 10) || 0,
+        t: src.t || Date.now(),
+        o: cOwner.querySelector('input').checked ? 1 : 0,
+      };
+      l.sort((a, b2) => b2.s - a.s);
+      setJ(KEYS.HS, l.slice(0, 8));
+      renderHS();
+      msg('Row saved ✓');
+    };
+    [cName, cScore, cBuds, cDist].forEach(c => {
+      const inp = c.querySelector('input');
+      inp.addEventListener('change', saveRow);
+      inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); saveRow(); } });
+    });
+    cOwner.querySelector('input').addEventListener('change', saveRow);
+    tr.appendChild(cRank); tr.appendChild(cName); tr.appendChild(cScore); tr.appendChild(cBuds);
+    tr.appendChild(cDist); tr.appendChild(cWhen); tr.appendChild(cOwner); tr.appendChild(cDel);
+    tb.appendChild(tr);
+  });
+}
+$('btnAddScore').addEventListener('click', () => {
+  const n = $('hsName').value.trim().toUpperCase().slice(0, 10);
+  const s = parseInt($('hsScore').value, 10);
+  if (!n || !s) { msg('Name + score required'); return; }
+  const l = hs();
+  l.push({ n, s, b: 0, d: 0, t: Date.now(), o: 0 });
+  l.sort((a, b) => b.s - a.s);
+  setJ(KEYS.HS, l.slice(0, 8));
+  $('hsName').value = '';
+  $('hsScore').value = '';
+  renderHS();
+  msg('Added ' + n);
+});
+
+/* ---------------- device stats ---------------- */
+function stats() {
+  const s = getJ(KEYS.STATS, null);
+  if (!s || typeof s !== 'object') return { r: 0, d: 0, b: 0, bb: 0, ks: 0, best: 0, t: 0 };
+  return { r: s.r | 0, d: s.d | 0, b: s.b | 0, bb: s.bb | 0, ks: s.ks | 0, best: s.best | 0, t: s.t | 0 };
+}
+function renderStats() {
+  const s = stats();
+  $('stR').value = s.r; $('stBest').value = s.best; $('stD').value = s.d;
+  $('stB').value = s.b; $('stBB').value = s.bb; $('stKS').value = s.ks;
+}
+$('btnSaveStats').addEventListener('click', () => {
+  const n = (id) => parseInt($(id).value, 10) || 0;
+  setJ(KEYS.STATS, { r: n('stR'), d: n('stD'), b: n('stB'), bb: n('stBB'), ks: n('stKS'), best: n('stBest'), t: stats().t });
+  msg('Stats saved ✓');
+});
+
+/* ---------------- export / import ---------------- */
+function fullSave() {
+  const out = {};
+  Object.values(KEYS).forEach(k => {
+    const v = get(k, null);
+    if (v != null && v !== '') out[k] = v;
+  });
+  return out;
+}
+$('btnExport').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(fullSave(), null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'nlr-save-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  msg('Save downloaded ✓');
+});
+$('btnCopy').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(fullSave(), null, 2));
+    msg('Copied ✓');
+  } catch (e) {
+    $('pasteBox').value = JSON.stringify(fullSave(), null, 2);
+    msg('Clipboard blocked — JSON is in the paste box');
+  }
+});
+function applySave(obj) {
+  if (!obj || typeof obj !== 'object') { msg('Invalid JSON'); return false; }
+  let n = 0;
+  Object.keys(KEYS).forEach(k => {
+    if (obj[k] !== undefined) {
+      try { localStorage.setItem(k, typeof obj[k] === 'string' ? obj[k] : JSON.stringify(obj[k])); n++; } catch (e) { }
+    }
+  });
+  return n;
+}
+$('btnApplyPaste').addEventListener('click', () => {
+  try {
+    const n = applySave(JSON.parse($('pasteBox').value));
+    msg(n ? `Imported ${n} keys ✓ (page reloads)` : 'No known keys found');
+    setTimeout(() => location.reload(), 900);
+  } catch (e) { msg('Invalid JSON: ' + e.message); }
+});
+$('btnFile').addEventListener('click', () => $('fileIn').click());
+$('fileIn').addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const n = applySave(JSON.parse(String(r.result)));
+      msg(n ? `Imported ${n} keys ✓ (page reloads)` : 'No known keys found');
+      setTimeout(() => location.reload(), 900);
+    } catch (err) { msg('Invalid JSON: ' + err.message); }
+  };
+  r.readAsText(f);
+});
+$('btnReload').addEventListener('click', () => location.reload());
+
+/* ---------------- destructive ---------------- */
+function arm(btn, fn) {
+  if (btn.classList.contains('armed')) {
+    btn.classList.remove('armed');
+    btn.textContent = btn.dataset.label;
+    fn();
+  } else {
+    btn.dataset.label = btn.textContent;
+    btn.classList.add('armed');
+    btn.textContent = 'TAP AGAIN ⚠';
+    setTimeout(() => {
+      btn.classList.remove('armed');
+      btn.textContent = btn.dataset.label;
+    }, 3000);
+  }
+}
+$('btnResetHS').addEventListener('click', (e) => arm(e.currentTarget, () => {
+  setJ(KEYS.HS, []);
+  renderHS();
+  msg('Leaderboard reset');
+}));
+$('btnWipeAll').addEventListener('click', (e) => arm(e.currentTarget, () => {
+  Object.values(KEYS).forEach(k => { try { localStorage.removeItem(k); } catch (err) { } });
+  renderOwners(); renderGrants(); renderHS(); renderStats();
+  msg('ALL SAVE WIPED');
+}));
+
+/* ---------------- boot ---------------- */
+renderOwners();
+renderGrants();
+renderHS();
+renderStats();
+</script>
+</body>
+</html>

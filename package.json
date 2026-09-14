@@ -1,0 +1,12 @@
+{
+  "name": "northern-lights-run",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Northern Lights Run — 3D endless runner for Northern Lights Herbal Wellness, Lenasia (18+). Static site, no build tools: python3 -m http.server 8000",
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "node test_headless.js",
+    "build:single": "node tools/build_single.js"
+  }
+}
