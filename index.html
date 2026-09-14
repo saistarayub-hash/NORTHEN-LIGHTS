@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b0e21">
-<meta name="description" content="Northern Lights Run — an endless runner for Northern Lights Herbal Wellness, Lenasia. Dodge, jump, roll and collect the herb!">
+<meta name="description" content="Northern Lights Run — a 3D endless runner for Northern Lights Herbal Wellness, Lenasia. Dodge, jump, roll and collect the herb!">
 <title>Northern Lights Run — Herbal Wellness Lenasia</title>
 <link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="apple-touch-icon" href="assets/logo.png">
@@ -12,6 +12,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.186.0/build/three.module.js"
+  }
+}
+</script>
 </head>
 <body>
 <div id="app">
@@ -24,20 +31,37 @@
       <div id="hudDist">0 m</div>
     </div>
     <div id="hudCenter">
-      <div id="hudMult" class="hidden">×2</div>
+      <div id="hudMult">×1</div>
+      <div id="hudStreak" class="hidden">STREAK ×2</div>
     </div>
     <div id="hudRight">
       <div id="hudBuds"><span class="budIcon"></span><span id="hudBudCount">0</span></div>
+      <div id="hudBoardsBox" title="Hoverboards"><span class="boardIcon"></span><span id="hudBoardCount">2</span></div>
+      <div id="hudKeysBox" title="Keys"><span class="keyIcon"></span><span id="hudKeyCount">0</span></div>
       <button id="btnPause" aria-label="Pause"></button>
     </div>
+    <div id="fps" class="hi">60 FPS</div>
     <div id="powerPills"></div>
     <div id="hint">
-      <span class="key">◀ ▶</span> move&nbsp;&nbsp;<span class="key">▲</span> jump&nbsp;&nbsp;<span class="key">▼</span> roll&nbsp;&nbsp;·&nbsp;&nbsp;or swipe
+      <span class="key">◀ ▶</span> move&nbsp;&nbsp;<span class="key">▲</span> jump&nbsp;&nbsp;<span class="key">▼</span> roll&nbsp;&nbsp;<span class="key">F</span> board&nbsp;&nbsp;·&nbsp;&nbsp;or swipe / double-tap
     </div>
   </div>
 
   <div id="flash"></div>
+  <div id="speedlines"></div>
+  <div id="emote" class="hidden"></div>
+  <div id="popups"></div>
   <div id="countdown" class="hidden"></div>
+
+  <!-- ============ SECOND CHANCE (key) ============ -->
+  <div id="scOverlay" class="hidden">
+    <div class="scPanel">
+      <div class="scKey">🔑</div>
+      <h2 class="scTitle">SECOND CHANCE!</h2>
+      <div id="scCount" class="scCount">2.6</div>
+      <p class="scSub">DOC's back on the board…</p>
+    </div>
+  </div>
 
   <!-- ============ START MENU ============ -->
   <div id="menu" class="screen">
@@ -49,22 +73,67 @@
           <p class="tagline">🌿 HERBAL WELLNESS · LENASIA 🌿</p>
         </div>
       </div>
-      <button id="btnPlay" class="btn btnPrimary big">▶&nbsp; PLAY</button>
-      <div class="howto">
-        <div class="chip"><span class="chipIcon">⬅️➡️</span> Swipe / Arrow keys to switch lane</div>
-        <div class="chip"><span class="chipIcon">⬆️</span> Swipe up / Space to jump</div>
-        <div class="chip"><span class="chipIcon">⬇️</span> Swipe down to roll under signs</div>
-        <div class="chip"><span class="chipIcon">🌿</span> Collect buds · Grab power-ups · Don't crash!</div>
+      <div class="starring">STARRING <b>DOC</b> · <span class="igLink">@stoner_pri</span></div>
+
+      <div id="crownChip" class="crownChip hidden">
+        <span id="crownName">👑 CROWN RUN</span>
+        <button id="crownClear" aria-label="Cancel crown run">✕</button>
       </div>
+
+      <button id="btnPlay" class="btn btnPrimary big">▶&nbsp; PLAY</button>
+      <button id="btnLobby" class="btn hidden">🏠&nbsp; LOBBY</button>
+
+      <div class="socialRow">
+        <a class="chip chipLink" href="https://instagram.com/northernlightsherb" target="_blank" rel="noopener">📸 @northernlightsherb</a>
+        <a class="chip chipLink" href="https://instagram.com/stoner_pri" target="_blank" rel="noopener">👑 @stoner_pri</a>
+      </div>
+
+      <div class="howto">
+        <div class="chip"><span class="chipIcon">⬅️➡️</span> Swipe / arrows — switch lane</div>
+        <div class="chip"><span class="chipIcon">⬆️</span> Swipe up / Space — jump</div>
+        <div class="chip"><span class="chipIcon">⬇️</span> Swipe down — roll under signs</div>
+        <div class="chip"><span class="chipIcon">🛹</span> F / double-tap — hoverboard (crash save)</div>
+        <div class="chip"><span class="chipIcon">🚄</span> Ride the ramps onto train roofs</div>
+        <div class="chip"><span class="chipIcon">🔑</span> Keys = second chance · 18+ play responsibly</div>
+      </div>
+
       <div class="scoresBox">
         <h2>🏆 LOCAL HIGH SCORES</h2>
         <ol id="menuScores"><li class="empty">No runs yet — be the first legend.</li></ol>
       </div>
+
       <div class="footerRow">
         <button id="btnSoundMenu" class="btn btnGhost small" aria-label="Toggle sound">🔊 SOUND ON</button>
         <span class="store">142 PROTEA AVE, LENASIA</span>
       </div>
-      <p class="ageGate">18+ · Play responsibly 🌱</p>
+      <p class="ageGate">18+ · Northern Lights Herbal Wellness · Play responsibly 🌱</p>
+    </div>
+  </div>
+
+  <!-- ============ LOBBY (only via index.html#cockpit) ============ -->
+  <div id="lobby" class="screen hidden">
+    <div class="panel lobbyPanel">
+      <h1 class="title small">🏠 LOBBY</h1>
+      <p class="tagline">GEAR · CREW · RANKINGS</p>
+      <div class="lobbyTabs">
+        <button id="tabBoards" class="tabBtn on">🛹 BOARDS</button>
+        <button id="tabCrew" class="tabBtn">🏃 CREW</button>
+        <button id="tabRank" class="tabBtn">🏆 RANKS</button>
+      </div>
+
+      <div id="lobbyBoards" class="lobbyTab"></div>
+      <div id="lobbyCrew" class="lobbyTab hidden"></div>
+      <div id="lobbyRank" class="lobbyTab hidden">
+        <div class="rankTabs">
+          <button id="rankAll" class="tabBtn on">ALL-TIME</button>
+          <button id="rankWeek" class="tabBtn">THIS WEEK</button>
+        </div>
+        <div id="lobbyList"></div>
+        <div id="lobbyStats" class="devStats"></div>
+        <button id="lobbyReset" class="btn btnGhost small">LEADERBOARD RESET</button>
+      </div>
+
+      <button id="lobbyBack" class="btn btnPrimary big">◀&nbsp; BACK TO MENU</button>
     </div>
   </div>
 
@@ -85,6 +154,7 @@
     <div class="panel">
       <h1 class="title small crash">WIPEOUT!</h1>
       <div id="newRecord" class="hidden">🌟 NEW HIGH SCORE! 🌟</div>
+      <div id="crownTag" class="crownTag hidden"></div>
       <div id="finalScore">0</div>
       <div class="statRow"><span>Distance</span><b id="statDist">0 m</b></div>
       <div class="statRow"><span>Buds collected</span><b id="statBuds">0</b></div>
@@ -104,8 +174,6 @@
 </div>
 
 <script src="js/audio.js"></script>
-<script src="js/sprites.js"></script>
-<script src="js/engine.js"></script>
-<script src="js/main.js"></script>
+<script type="module" src="js/boot.js"></script>
 </body>
 </html>

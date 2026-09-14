@@ -173,6 +173,68 @@
     tone({ f0: hi ? 880 : 520, dur: hi ? 0.3 : 0.1, vol: 0.14, type: 'triangle', t: A.ctx.currentTime });
   };
 
+  /* ---------- 3D-rebuild additions (ramps, boards, trains, keys) ---------- */
+
+  S.launch = function () {
+    if (!A.ctx) return;
+    const t = A.ctx.currentTime;
+    tone({ f0: 240, f1: 980, dur: 0.34, vol: 0.14, type: 'sawtooth', t });
+    noise({ f0: 500, f1: 2400, dur: 0.3, vol: 0.08, t, ftype: 'bandpass' });
+  };
+
+  S.board = function () {
+    if (!A.ctx) return;
+    const t = A.ctx.currentTime;
+    tone({ f0: 392, f1: 784, dur: 0.18, vol: 0.12, type: 'sine', t });
+    tone({ f0: 587, f1: 1175, dur: 0.22, vol: 0.08, type: 'sine', t: t + 0.06 });
+  };
+
+  S.boardBreak = function () {
+    if (!A.ctx) return;
+    const t = A.ctx.currentTime;
+    noise({ f0: 2600, f1: 300, dur: 0.35, vol: 0.28, t });
+    tone({ f0: 180, f1: 60, dur: 0.3, vol: 0.3, type: 'triangle', t });
+    [660, 494, 330].forEach((f, i) => tone({ f0: f, dur: 0.09, vol: 0.08, type: 'square', t: t + 0.05 + i * 0.05 }));
+  };
+
+  S.secondChance = function () {
+    if (!A.ctx) return;
+    const t = A.ctx.currentTime;
+    [523, 659, 784, 1046, 1318].forEach((f, i) => tone({ f0: f, dur: 0.16, vol: 0.13, type: 'triangle', t: t + i * 0.07 }));
+    noise({ f0: 3000, f1: 6000, dur: 0.5, vol: 0.05, t, ftype: 'highpass' });
+  };
+
+  S.soda = function () {
+    if (!A.ctx) return;
+    const t = A.ctx.currentTime;
+    tone({ f0: 220, f1: 660, dur: 0.08, vol: 0.16, type: 'square', t });
+    noise({ f0: 3800, f1: 7000, dur: 0.28, vol: 0.09, t: t + 0.05, ftype: 'highpass' });
+    tone({ f0: 880, dur: 0.07, vol: 0.08, type: 'sine', t: t + 0.14 });
+  };
+
+  S.key = function () {
+    if (!A.ctx) return;
+    const t = A.ctx.currentTime;
+    [1046, 1318, 1568].forEach((f, i) => tone({ f0: f, dur: 0.14, vol: 0.12, type: 'sine', t: t + i * 0.05 }));
+    tone({ f0: 2093, dur: 0.2, vol: 0.06, type: 'sine', t: t + 0.16 });
+  };
+
+  S.jet = function () {
+    if (!A.ctx) return;
+    const t = A.ctx.currentTime;
+    noise({ f0: 300, f1: 2400, dur: 0.7, vol: 0.14, t, ftype: 'bandpass' });
+    tone({ f0: 160, f1: 640, dur: 0.6, vol: 0.1, type: 'sawtooth', t });
+  };
+
+  S.horn = function () { // oncoming train air horn (two-tone)
+    if (!A.ctx) return;
+    const t = A.ctx.currentTime;
+    [311, 233].forEach((f, i) => {
+      tone({ f0: f, dur: 0.5, vol: 0.16, type: 'sawtooth', t: t + i * 0.02 });
+      tone({ f0: f * 1.5, dur: 0.5, vol: 0.06, type: 'square', t: t + i * 0.02 });
+    });
+  };
+
   /* ---------- generative music loop ---------- */
   const BPM = 116, SPB = 60 / BPM;
   // 16th-note steps per bar = 16
