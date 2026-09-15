@@ -8,8 +8,8 @@
    (RUN / JUMP tuck / ROLL spin / STUMBLE-TUMBLE / HOVERBOARD
    surf stance / JETPACK dangle), squash-and-stretch, ~12°
    lane-change lean, and the third-person chase camera
-   (4.2 behind, 2.6 up, FOV 62→70, look-ahead, bob, ramp tilt,
-   jetpack rise, crash dolly-in + shake).
+   (3.2 behind, 2.05 up, FOV 62→70, chest-height look-at,
+   bob, ramp tilt, jetpack rise, crash dolly-in + shake).
    ============================================================ */
 import * as THREE from 'three';
 import { CFG, G, LANE_X } from './sim.js';
@@ -74,14 +74,34 @@ export function createPlayer(scene, camera) {
     root.add(hips);
     rig.hips = hips;
 
-    // torso (hoodie)
-    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.52, 0.28), M.hood);
+    // torso (hoodie) — 0.48 wide × 0.54 tall × 0.30 deep
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.54, 0.30), M.hood);
     torso.position.y = 0.3;
     hips.add(torso);
-    const hoodBack = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 8), M.hoodDark);
-    hoodBack.position.set(0, 0.46, -0.12);
-    hoodBack.scale.set(1, 1.1, 0.8);
+    // zipper line down the hoodie front
+    const zipper = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.5, 0.02), M.gold);
+    zipper.position.set(0, 0.29, 0.155);
+    hips.add(zipper);
+    // hood bunched behind the neck + collar ring around it
+    const hoodBack = new THREE.Mesh(new THREE.SphereGeometry(0.175, 10, 8), M.hoodDark);
+    hoodBack.position.set(0, 0.575, -0.135);
+    hoodBack.scale.set(1.08, 0.66, 0.9);
     hips.add(hoodBack);
+    // collar ring around the neck, low enough to leave the jaw clear
+    const collar = new THREE.Mesh(new THREE.TorusGeometry(0.132, 0.042, 8, 16), M.hoodDark);
+    collar.rotation.x = Math.PI / 2;
+    collar.position.set(0, 0.556, -0.005);
+    hips.add(collar);
+    // neck (connects head to torso)
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.078, 0.088, 0.16, 10), M.skin);
+    neck.position.set(0, 0.625, 0.005);
+    hips.add(neck);
+    // shoulder caps (round off the arm joins)
+    [-1, 1].forEach((s) => {
+      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.08, 10, 8), M.hood);
+      cap.position.set(s * 0.232, 0.455, 0);
+      hips.add(cap);
+    });
     // chest leaf
     const leafCv = document.createElement('canvas');
     leafCv.width = leafCv.height = 64;
@@ -98,35 +118,60 @@ export function createPlayer(scene, camera) {
     leafTex.colorSpace = THREE.SRGBColorSpace;
     const chestLeaf = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.2),
       new THREE.MeshBasicMaterial({ map: leafTex, transparent: true }));
-    chestLeaf.position.set(0.09, 0.34, 0.145);
+    chestLeaf.position.set(0.09, 0.34, 0.16);
     hips.add(chestLeaf);
-    // chain
+    // chain (torus proud of the 0.15 torso half-depth) + pendant below
     if (char.chain) {
-      const chain = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.014, 6, 18), M.gold);
-      chain.position.set(0, 0.52, 0.06);
+      const chain = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.017, 8, 20), M.gold);
+      chain.position.set(0, 0.52, 0.12);
       chain.rotation.x = 1.25;
-      hips.add(chain);
+      const pendant = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.075, 0.022), M.gold);
+      pendant.position.set(0, 0.47, 0.168);
+      pendant.rotation.x = -0.12;
+      hips.add(chain, pendant);
     }
 
     // head
     const headG = new THREE.Group();
-    headG.position.y = 0.66;
+    headG.position.y = 0.72;
     hips.add(headG);
     rig.head = headG;
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.165, 14, 12), M.skin);
     headG.add(head);
-    // dreadlocks (merged capsules fanned around the skull)
+    // ears
+    [-1, 1].forEach((s) => {
+      const ear = new THREE.Mesh(new THREE.SphereGeometry(0.038, 8, 8), M.skin);
+      ear.position.set(s * 0.163, 0.01, 0);
+      ear.scale.set(0.7, 1, 0.95);
+      headG.add(ear);
+    });
+    // hair cap under the hat — crown + back only, stops above the brow
+    // so the face below the hairline stays skin
+    const hairCap = new THREE.Mesh(new THREE.SphereGeometry(0.169, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.42), M.hair);
+    hairCap.position.set(0, 0.012, -0.024);
+    hairCap.rotation.x = -0.18;
+    hairCap.scale.set(1.04, 1, 1.0);
+    headG.add(hairCap);
+    // nape coverage: hair down the back of the skull to the hairline
+    const nape = new THREE.Mesh(new THREE.SphereGeometry(0.166, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.34), M.hair);
+    nape.position.set(0, -0.028, -0.05);
+    nape.rotation.x = -1.02;
+    nape.scale.set(1.02, 1.0, 1.08);
+    headG.add(nape);
+    // dreadlocks — 14 capsules angled OUT + DOWN from a skull-radius anchor
     const dreadParts = [];
-    const N = 10;
+    const N = 14;
     for (let i = 0; i < N; i++) {
       const a = (i / N) * Math.PI * 2;
-      const g = limbGeo(0.032, 0.15);
-      const tilt = 0.9 + (i % 3) * 0.18;
-      const m4 = new THREE.Matrix4();
-      const q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1).set(Math.cos(a), 0, Math.sin(a)).normalize(), tilt);
-      m4.makeRotationFromQuaternion(q);
+      const g = limbGeo(0.034, 0.24);
+      const tilt = 1.95 + (i % 3) * 0.22;
+      // rotate about the tangent so the lock swings outward, away from the skull
+      const axis = new THREE.Vector3(Math.sin(a), 0, -Math.cos(a)).normalize();
+      const q = new THREE.Quaternion().setFromAxisAngle(axis, tilt);
+      const m4 = new THREE.Matrix4().makeRotationFromQuaternion(q);
       g.applyMatrix4(m4);
-      g.translate(Math.cos(a) * 0.12, 0.05 - Math.sin(tilt) * 0.12, Math.sin(a) * 0.12);
+      const grow = 0.15 + 0.154 * Math.sin(tilt);
+      g.translate(Math.cos(a) * grow, 0.04 + 0.154 * Math.cos(tilt), Math.sin(a) * grow);
       dreadParts.push(g);
     }
     const dreads = new THREE.Mesh(mergeLocal(dreadParts), M.hair);
@@ -134,14 +179,17 @@ export function createPlayer(scene, camera) {
     // hat
     rig.hatParts = [];
     if (char.hatType === 'snapback' || char.hatType === 'cap') {
-      const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.175, 0.185, 0.07, 14), M.hat);
-      disc.position.y = 0.12;
-      const brim = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.025, 0.15), M.hat);
-      brim.position.set(0, 0.09, 0.19);
-      headG.add(disc, brim);
+      const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.165, 0.192, 0.095, 14), M.hat);
+      disc.position.y = 0.145;
+      const brim = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.028, 0.17), M.hat);
+      brim.position.set(0, 0.118, 0.205);
+      brim.rotation.x = 0.12;
+      const button = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.024, 10), M.gold);
+      button.position.y = 0.199;
+      headG.add(disc, brim, button);
       headG.rotation.z = -0.14; // tilted
       headG.rotation.x = 0.06;
-      rig.hatParts.push(disc, brim);
+      rig.hatParts.push(disc, brim, button);
     } else if (char.hatType === 'beanie') {
       const beanie = new THREE.Mesh(new THREE.SphereGeometry(0.185, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.55), M.hat);
       beanie.position.y = 0.04;
@@ -185,11 +233,15 @@ export function createPlayer(scene, camera) {
       const shin = new THREE.Mesh(limbGeo(0.06, 0.28), M.jogger);
       shin.position.y = -0.22;
       knee.add(shin);
-      const foot = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.1, 0.3), M.shoe);
+      const foot = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.105, 0.3), M.shoe);
       foot.position.set(0, -0.44, 0.06);
       knee.add(foot);
-      const sole = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.03, 0.31), M.shoeAcc);
-      sole.position.set(0, -0.485, 0.06);
+      const toe = new THREE.Mesh(new THREE.SphereGeometry(0.076, 8, 6), M.shoe);
+      toe.position.set(0, -0.452, 0.2);
+      toe.scale.set(0.98, 0.7, 1.25);
+      knee.add(toe);
+      const sole = new THREE.Mesh(new THREE.BoxGeometry(0.166, 0.045, 0.34), M.shoeAcc);
+      sole.position.set(0, -0.478, 0.065);
       knee.add(sole);
       return { hipJ, knee };
     }
@@ -388,11 +440,14 @@ export function createPlayer(scene, camera) {
   }
 
   /* ---------------- camera rig ---------------- */
+  // 3.2 behind the runner (player z = 6 → cam z = 2.8), 2.05 high,
+  // chest-height look-at, look-ahead probe at P_PZ + 4.5.
+  const CAM = { x: 0.62, y: 2.05, z: 2.8, lookY: 1.15, lookZ: 4.5, fov: 62 };
   const cam = {
-    pos: new THREE.Vector3(0, 2.6, 1.8),
-    look: new THREE.Vector3(0, 1.0, 8),
+    pos: new THREE.Vector3(0, CAM.y, CAM.z),
+    look: new THREE.Vector3(0, CAM.lookY, P_PZ + CAM.lookZ),
   };
-  camera.fov = 62;
+  camera.fov = CAM.fov;
   camera.near = 0.3;
   camera.far = 500;
   camera.position.copy(cam.pos);
@@ -401,7 +456,7 @@ export function createPlayer(scene, camera) {
   function updateCamera(dt) {
     const pl = G.player;
     const speed01 = _clamp((G.speed - CFG.speedStart) / (CFG.speedMax - CFG.speedStart), 0, 1);
-    const fovT = 62 + 8 * speed01 + G.punch * 3;
+    const fovT = CAM.fov + 8 * speed01 + G.punch * 3;
     if (Math.abs(fovT - camera.fov) > 0.02) {
       camera.fov += (fovT - camera.fov) * Math.min(1, dt * 4);
       camera.updateProjectionMatrix();
@@ -409,16 +464,16 @@ export function createPlayer(scene, camera) {
 
     const lookAhead = (pl.x - LANE_X(pl.lane)) * 1.5;
     const jetRise = G.camJet;
-    let tx = pl.x * 0.62 + lookAhead;
-    let ty = 2.6 + pl.y * 0.38 + jetRise * 2.4;
-    let tz = 1.8 + jetRise * 1.4;
+    let tx = pl.x * CAM.x + lookAhead;
+    let ty = CAM.y + pl.y * 0.38 + jetRise * 2.4;
+    let tz = CAM.z + jetRise * 1.4;
 
     if (G.mode === 'dead') {
       // dramatic dolly-in toward the tumbler
       const f = Math.min(1, G.crashT * 2.2);
       tx = pl.x * 0.85;
       ty = 1.35 + f * 0.3;
-      tz = 3.4 - f * 0.4;
+      tz = 4.5 - 0.5 * f;
     }
 
     const k = G.mode === 'dead' ? Math.min(1, dt * 3) : Math.min(1, dt * 8); // ~8/s follow
@@ -430,9 +485,9 @@ export function createPlayer(scene, camera) {
     const bob = (pl.state === 'ground' && pl.alive) ? Math.abs(Math.sin(pl.runPhase)) * 0.04 : 0;
 
     let lx = pl.x * 0.85;
-    let ly = 1.05 + pl.y * 0.5 + bob + G.camPitch * 1.3 + jetRise * 1.7;
-    let lz = P_PZ + 5;
-    if (G.mode === 'dead') { lx = pl.x; ly = pl.y + 0.9; lz = P_PZ + 1.5; }
+    let ly = CAM.lookY + pl.y * 0.5 + bob + G.camPitch * 1.3 + jetRise * 1.7;
+    let lz = P_PZ + CAM.lookZ;
+    if (G.mode === 'dead') { lx = pl.x; ly = pl.y + 0.9; lz = P_PZ + 1.2; }
 
     camera.position.set(cam.pos.x, cam.pos.y, cam.pos.z);
     camera.position.x += G.shakeX * 0.12;
@@ -456,9 +511,9 @@ export function createPlayer(scene, camera) {
   P.update = update;
   P.setChar = setChar;
   P.reset = () => {
-    const camPos = new THREE.Vector3(0, 2.6, 1.8);
+    const camPos = new THREE.Vector3(0, CAM.y, CAM.z);
     cam.pos.copy(camPos);
-    cam.look.set(0, 1.0, 8);
+    cam.look.set(0, CAM.lookY, P_PZ + CAM.lookZ);
     camera.position.copy(camPos);
     camera.lookAt(cam.look);
   };
